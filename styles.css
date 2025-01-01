@@ -1,8 +1,49 @@
-/*
+/* Define a custom border color */
+.table-container {
+    border: var(--border-width) solid var(--background-modifier-border); /* Custom border color */
+    border-radius: 8px; /* Rounded corners */
+    overflow: hidden;
+    max-width: 100%;
+    --one-seventh-width: 0px;
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  
+  .table-header {
+    background-color: var(--background-secondary);
+  }
+  
+  .table th {
+    padding: 12px 16px;
+    font-size: small;
+    font-weight: 500;
+  } 
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+  .top-left {
+    width: 128px;
+  }
 
-If your plugin does not need CSS, delete this file.
+  .table td {
+    padding: 12px 16px;
+    font-size: small;
+    height: 68px;
+    border-top: var(--border-width) solid var(--background-modifier-border);
+  }
 
-*/
+  .taskcell-enclosure {
+    border-left: var(--border-width) solid var(--background-modifier-border);
+  }
+
+  .project-input {
+    border: none !important;
+    width: 100%;
+  }
+
+  .date {
+    border-left: var(--border-width) solid var(--background-modifier-border); 
+    width: var(--taskcell-enclosure-width);
+  }
