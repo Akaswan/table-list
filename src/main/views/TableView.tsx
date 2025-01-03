@@ -1,15 +1,32 @@
-import { StrictMode } from 'react';
-import { ItemView, WorkspaceLeaf } from 'obsidian';
+import { createContext, useContext } from 'react';
+import { ItemView, WorkspaceLeaf, App } from 'obsidian';
 import { Root, createRoot } from 'react-dom/client';
 import Table from 'src/main/react/Table';
 
+export interface AppContext {
+	app: App;
+	loadData: () => any;
+	saveData: (data: any) => Promise<void>;
+}
+
 export const TABLE_VIEW_TYPE = 'table-view';
+
+export const TableContext = createContext<AppContext | undefined>(undefined);
+
+export const useTableContext = (): AppContext | undefined => {
+	return useContext(TableContext);
+};
 
 export class TableView extends ItemView {
 	root: Root | null = null;
 
-	constructor(leaf: WorkspaceLeaf) {
+	loadData: () => any;
+	saveData: (data: any) => Promise<void>;
+
+	constructor(leaf: WorkspaceLeaf, loadData: () => any, saveData: (data: any) => Promise<void>) {
 		super(leaf);
+		this.loadData = loadData;
+		this.saveData = saveData;
 	}
 
 	getViewType() {
@@ -27,9 +44,9 @@ export class TableView extends ItemView {
 	async onOpen() {
 		this.root = createRoot(this.containerEl.children[1]);
 		this.root.render(
-			<StrictMode>
+			<TableContext.Provider value={{app: this.app, saveData: this.saveData, loadData: this.loadData}}>
 				<Table />
-			</StrictMode>
+			</TableContext.Provider>
 		);
 	}
 

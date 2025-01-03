@@ -3,7 +3,26 @@ import { TableView, TABLE_VIEW_TYPE } from "./views/TableView";
 
 export default class TableList extends Plugin {
 	async onload() {
-		this.registerView(TABLE_VIEW_TYPE, (leaf) => new TableView(leaf));
+		let data = await this.loadData();
+
+		if (!(await data)) {
+			data = {
+				projects: [],
+				nextProjectId: 0,
+			};
+
+			this.saveData(data);
+		}
+
+		this.app.workspace.on(
+			"active-leaf-change",
+			async () => (data = await this.loadData())
+		);
+
+		this.registerView(
+			TABLE_VIEW_TYPE,
+			(leaf) => new TableView(leaf, () => data, (data) => this.saveData(data))
+		);
 
 		this.addRibbonIcon("table-2", "Activate view", () => {
 			this.activateView();
