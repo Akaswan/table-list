@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import { ItemView, WorkspaceLeaf, App } from 'obsidian';
 import { Root, createRoot } from 'react-dom/client';
-import Table from 'src/main/react/Table';
+import AppComponent from 'src/main/components/App';
 
 export interface AppContext {
 	app: App;
@@ -45,7 +45,7 @@ export class TableView extends ItemView {
 		this.root = createRoot(this.containerEl.children[1]);
 		this.root.render(
 			<TableContext.Provider value={{app: this.app, saveData: this.saveData, loadData: this.loadData}}>
-				<Table />
+				<AppComponent />
 			</TableContext.Provider>
 		);
 	}
