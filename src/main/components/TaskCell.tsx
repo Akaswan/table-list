@@ -23,9 +23,10 @@ interface TaskCellProps {
     task: Task;
     removeTask: (id: number) => void;
     inputRef: React.RefObject<HTMLInputElement | null> | null;
+	handleTaskNameChange: (id: number, newName: string) => void;
 }
 
-const TaskCell: React.FC<TaskCellProps> = ({task, removeTask, inputRef}) => {
+const TaskCell: React.FC<TaskCellProps> = ({task, removeTask, inputRef, handleTaskNameChange}) => {
 	const color = "#35CC70";
 
 	document.documentElement.style.setProperty("--task-color", color);
@@ -52,6 +53,8 @@ const TaskCell: React.FC<TaskCellProps> = ({task, removeTask, inputRef}) => {
 						if (e.target.value === "") removeTask(task.id);
 					}}
                     ref={inputRef}
+					onChange={(e) => handleTaskNameChange(task.id, e.target.value)}
+					value={task.name}
 				></input>
 			</div>
 		</div>

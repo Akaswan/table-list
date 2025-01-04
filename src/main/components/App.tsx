@@ -48,10 +48,10 @@ const App: React.FC = () => {
 			return newDates;
 		});
 	};
-
+	
 	const decrementDates = () => {
 		setDates((prevDates) => {
-			const newDates = getWeekDates(subDays(new Date(prevDates[0]), 8));
+			const newDates = getWeekDates(subDays(new Date(prevDates[0]), 6));
 			return newDates;
 		});
 	};
@@ -72,6 +72,19 @@ const App: React.FC = () => {
 			return newProjects;
 		});
 	};
+
+	const handleTaskNameChange = (id: number, newName: string) => {
+		setProjects((prevProjects) => {
+			const newProjects = prevProjects.map((project) => {
+				const newTasks = project.tasks.map((task) =>
+					task.id === id ? { ...task, name: newName } : task
+				);
+				return { ...project, tasks: newTasks };
+			});
+			saveSpecificData("projects", newProjects);
+			return newProjects;
+		});
+	}
 
 	const removeProject = (id: number) => {
 		setProjects((prevProjects) => {
@@ -183,6 +196,7 @@ const App: React.FC = () => {
 				removeProject={removeProject}
 				removeTask={removeTask}
 				nextTaskId={nextTaskId}
+				handleTaskNameChange={handleTaskNameChange}
 			/>
 		</div>
 	);

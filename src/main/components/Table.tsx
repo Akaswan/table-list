@@ -17,6 +17,7 @@ interface TableProps {
 	removeProject: (id: number) => void;
 	removeTask: (id: number) => void;
 	nextTaskId: number;
+	handleTaskNameChange: (id: number, newName: string) => void;
 }
 
 const Table: React.FC<TableProps> = ({
@@ -28,7 +29,8 @@ const Table: React.FC<TableProps> = ({
 	addTaskToProject,
 	removeProject,
 	removeTask,
-	nextTaskId
+	nextTaskId,
+	handleTaskNameChange
 }) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const newProjectInputRef = useRef<HTMLInputElement | null>(null);
@@ -131,6 +133,8 @@ const Table: React.FC<TableProps> = ({
 															? newTaskInputRef
 															: null
 													}
+													
+													handleTaskNameChange={handleTaskNameChange}
 												/>
 											))}
 									</td>

@@ -139,7 +139,6 @@
 	padding: 8px;
 	font-size: small;
 	height: 80px;
-  /* height: 128px; */
 	border-top: var(--border-width) solid var(--background-modifier-border);
 }
 .taskcell-enclosure {
