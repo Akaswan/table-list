@@ -5,7 +5,7 @@
 	"minAppVersion": "0.15.0",
 	"description": "Adds different ways to view your tasks",
 	"author": "Akaswan",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": false
+	"authorUrl": "https://github.com/Akaswan",
+	"fundingUrl": "",
+	"isDesktopOnly": true
 }

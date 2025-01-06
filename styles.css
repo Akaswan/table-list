@@ -35,6 +35,7 @@
 
 .date-display:hover {
   background-color: var(--background-secondary-alt);
+  cursor: pointer;
 }
 
 .date-increment {
@@ -49,6 +50,7 @@
 
 .date-increment:hover {
   background-color: var(--background-secondary-alt);
+  cursor: pointer;
 }
 
 .left-increment {
@@ -76,10 +78,12 @@
 
 .task-cell-header {
   background: var(--task-background);
-  border-radius: 4px;
+  border-radius: 6px;
   margin-bottom: 4px;
   color: var(--light-task-text-color);
   padding-left: 4px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .task-cell-content input {
@@ -94,6 +98,25 @@
 .task-cell-content input::placeholder {
   color: var(--light-task-text-color);
   opacity: 0.5;
+}
+
+.task-cell-status-indicator {
+  padding-right: 4px;
+  padding-left: 4px;
+  border: var(--light-task-text-color) solid 1px;
+  border-radius: 6px;
+  height: min-content;
+  color: var(--light-task-text-color);
+  background-color: transparent;
+}
+
+.task-cell-status-indicator:hover {
+  background-color: var(--light-task-background-color);
+  cursor: pointer;
+}
+
+.task-cell-status-indicator:focus {
+  background-color: var(--light-task-background-color);
 }
 
 /* Table */

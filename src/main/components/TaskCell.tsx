@@ -1,4 +1,4 @@
-import { Task } from "./App";
+import { Task, TaskStatus } from "./App";
 
 const transColor = (color: string, percent: number): string => {
 	const num = parseInt(color.replace("#", ""), 16);
@@ -24,28 +24,44 @@ interface TaskCellProps {
     removeTask: (id: number) => void;
     inputRef: React.RefObject<HTMLInputElement | null> | null;
 	handleTaskNameChange: (id: number, newName: string) => void;
+	projectName: string;
+	status: TaskStatus;
+	taskStatuses: TaskStatus[];
+	editTaskStatus: (id: number, newStatusId: string) => void;
 }
 
-const TaskCell: React.FC<TaskCellProps> = ({task, removeTask, inputRef, handleTaskNameChange}) => {
-	const color = "#35CC70";
+const TaskCell: React.FC<TaskCellProps> = ({task, removeTask, inputRef, handleTaskNameChange, projectName, status, taskStatuses, editTaskStatus}) => {
 
-	document.documentElement.style.setProperty("--task-color", color);
+	document.documentElement.style.setProperty("--task-color", status.color);
 	document.documentElement.style.setProperty(
 		"--task-background",
-		`${color}33`
+		`${status.color}33`
 	);
 	document.documentElement.style.setProperty(
 		"--dark-task-text-color",
-		transColor(color, -40)
+		transColor(status.color, -40)
 	);
 	document.documentElement.style.setProperty(
 		"--light-task-text-color",
-		transColor(color, 25)
+		transColor(status.color, 25)
+	);
+	document.documentElement.style.setProperty(
+		"--light-task-background-color",
+		`${transColor(status.color, 25)}33`
 	);
 
 	return (
 		<div className="task-cell">
-			<div className="task-cell-header">Apush</div>
+			<div className="task-cell-header">
+				{projectName}
+				<select className="task-cell-status-indicator" onChange={(e) => editTaskStatus(task.id, e.target.value)}>
+					{taskStatuses.map((status) => (
+						<option key={status.id} value={status.id} selected={status.id === task.status.id}>
+							{status.name}
+						</option>
+					))}
+				</select>
+				</div>
 			<div className="task-cell-content">
 				<input
 					placeholder="Task Name"

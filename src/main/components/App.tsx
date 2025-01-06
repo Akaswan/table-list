@@ -3,6 +3,7 @@ import { useTableContext } from "../views/TableView";
 import Table from "./Table";
 import TopBar from "./TopBar";
 import { format, addDays, startOfWeek, subDays } from "date-fns";
+import { stat } from "fs";
 
 export interface Project {
 	id: number;
@@ -15,6 +16,13 @@ export interface Task {
 	name: string;
 	date: Date;
 	parentProjectId: number;
+	status: TaskStatus;
+}
+
+export interface TaskStatus {
+	name: string;
+	id: string;
+	color: string;
 }
 
 const getWeekDates = (date: Date) => {
@@ -25,12 +33,22 @@ const getWeekDates = (date: Date) => {
 	return dates;
 };
 
+const getTaskStatuses = () => {
+	return [
+		{ name: "Havent Started", id: "havent-started", color: "#FF0000" },
+		{ name: "In Progress", id: "in-progress", color: "#FF8800" },
+		{ name: "Completed", id: "completed", color: "#35CC70" },
+	];
+}
+
 const App: React.FC = () => {
 	const tableContext = useTableContext();
 
 	const [dates, setDates] = useState(getWeekDates(new Date()));
 
 	const [data, setData] = useState(() => tableContext!.loadData());
+
+	const [taskStatuses, setTaskStatuses] = useState(getTaskStatuses());
 
 	const [projects, setProjects] = useState(
 		() => tableContext!.loadData().projects as Project[]
@@ -107,6 +125,26 @@ const App: React.FC = () => {
 		});
 	};
 
+	const editTaskStatus = (id: number, newStatusId: string) => {
+		setProjects((prevProjects) => {
+			const newProjects = prevProjects.map((project) => {
+				const newTasks = project.tasks.map((task) =>
+					task.id === id
+						? {
+								...task,
+								status: taskStatuses.find(
+									(status) => status.id === newStatusId
+								) as TaskStatus,
+						  }
+						: task
+				);
+				return { ...project, tasks: newTasks };
+			});
+			saveSpecificData("projects", newProjects);
+			return newProjects;
+		});
+	}
+
 	const createNewProject = (
 		newName: string,
 		newProjectInputRef: React.RefObject<HTMLInputElement | null>
@@ -142,6 +180,7 @@ const App: React.FC = () => {
 			name: "",
 			date: new Date(date),
 			parentProjectId: project.id,
+			status: taskStatuses[0],
 		};
 
 		setProjects((prevProjects) => {
@@ -197,6 +236,8 @@ const App: React.FC = () => {
 				removeTask={removeTask}
 				nextTaskId={nextTaskId}
 				handleTaskNameChange={handleTaskNameChange}
+				taskStatuses={taskStatuses}
+				editTaskStatus={editTaskStatus}
 			/>
 		</div>
 	);

@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { useEffect, useRef } from "react";
 import * as React from "react";
-import { Project } from "./App";
+import { Project, TaskStatus } from "./App";
 import TaskCell from "./TaskCell";
 
 interface TableProps {
@@ -18,6 +18,8 @@ interface TableProps {
 	removeTask: (id: number) => void;
 	nextTaskId: number;
 	handleTaskNameChange: (id: number, newName: string) => void;
+	taskStatuses: TaskStatus[];
+	editTaskStatus: (id: number, newStatusId: string) => void;
 }
 
 const Table: React.FC<TableProps> = ({
@@ -30,7 +32,9 @@ const Table: React.FC<TableProps> = ({
 	removeProject,
 	removeTask,
 	nextTaskId,
-	handleTaskNameChange
+	handleTaskNameChange,
+	taskStatuses,
+	editTaskStatus
 }) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const newProjectInputRef = useRef<HTMLInputElement | null>(null);
@@ -126,6 +130,7 @@ const Table: React.FC<TableProps> = ({
 											.map((task) => (
 												<TaskCell
 													task={task}
+													projectName={project.name}
 													removeTask={removeTask}
 													key={task.id}
 													inputRef={
@@ -133,8 +138,10 @@ const Table: React.FC<TableProps> = ({
 															? newTaskInputRef
 															: null
 													}
-													
 													handleTaskNameChange={handleTaskNameChange}
+													status={task.status}
+													taskStatuses={taskStatuses}
+													editTaskStatus={editTaskStatus}
 												/>
 											))}
 									</td>
