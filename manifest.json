@@ -1,7 +1,7 @@
 {
 	"id": "table-list",
 	"name": "Table List",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
 	"description": "Adds different ways to view your tasks",
 	"author": "Akaswan",
