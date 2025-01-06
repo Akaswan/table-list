@@ -3,7 +3,7 @@
 	"name": "Table List",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Adds different ways to view your tasks",
+	"description": "Adds a table view to manage your tasks.",
 	"author": "Akaswan",
 	"authorUrl": "https://github.com/Akaswan",
 	"fundingUrl": "",
