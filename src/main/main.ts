@@ -14,14 +14,21 @@ export default class TableList extends Plugin {
 			this.saveData(data);
 		}
 
-		this.app.workspace.on(
-			"active-leaf-change",
-			async () => (data = await this.loadData())
+		this.registerEvent(
+			this.app.workspace.on(
+				"active-leaf-change",
+				async () => (data = await this.loadData())
+			)
 		);
 
 		this.registerView(
 			TABLE_VIEW_TYPE,
-			(leaf) => new TableView(leaf, () => data, (data) => this.saveData(data))
+			(leaf) =>
+				new TableView(
+					leaf,
+					() => data,
+					(data) => this.saveData(data)
+				)
 		);
 
 		this.addRibbonIcon("table-2", "Activate view", () => {
