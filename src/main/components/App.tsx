@@ -213,8 +213,6 @@ const App: React.FC = () => {
 	useEffect(() => {
 		if (tableContext) {
 			tableContext.saveData(data);
-		} else {
-			console.log("not exist");
 		}
 	}, [projects, nextProjectId]);
 

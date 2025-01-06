@@ -28,11 +28,11 @@ export default class TableList extends Plugin {
 			this.activateView();
 		});
 
-		if (!this.app.vault.getFolderByPath("TableList")) {
-			this.app.vault.createFolder("TableList");
-		} else {
-			console.log("Folder already exists");
-		}
+		// if (!this.app.vault.getFolderByPath("TableList")) {
+		// 	this.app.vault.createFolder("TableList");
+		// } else {
+		// 	console.log("Folder already exists");
+		// }
 	}
 
 	async onunload() {}
