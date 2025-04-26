@@ -32,38 +32,27 @@ interface TaskCellProps {
 
 const TaskCell: React.FC<TaskCellProps> = ({task, removeTask, inputRef, handleTaskNameChange, projectName, status, taskStatuses, editTaskStatus}) => {
 
-	document.documentElement.style.setProperty("--task-color", status.color);
-	document.documentElement.style.setProperty(
-		"--task-background",
-		`${status.color}33`
-	);
-	document.documentElement.style.setProperty(
-		"--dark-task-text-color",
-		transColor(status.color, -40)
-	);
-	document.documentElement.style.setProperty(
-		"--light-task-text-color",
-		transColor(status.color, 25)
-	);
-	document.documentElement.style.setProperty(
-		"--light-task-background-color",
-		`${transColor(status.color, 25)}33`
-	);
+	const taskColor = status.color;
+    const taskBackground = `${status.color}33`;
+    const darkTaskTextColor = transColor(status.color, -40);
+    const lightTaskTextColor = transColor(status.color, 25);
+    const lightTaskBackgroundColor = `${transColor(status.color, 25)}33`;
 
 	return (
-		<div className="task-cell">
-			<div className="task-cell-header">
+		<div className="task-cell" style={{backgroundColor: taskBackground}}>
+			<div className="task-cell-header" style={{backgroundColor: taskBackground, color: lightTaskTextColor}}>
 				{projectName}
-				<select className="task-cell-status-indicator" onChange={(e) => editTaskStatus(task.id, e.target.value)}>
+				<select className="task-cell-status-indicator" style={{ border: `1px solid ${lightTaskTextColor}`, color: lightTaskTextColor }} onChange={(e) => editTaskStatus(task.id, e.target.value)} defaultValue={status.id}>
 					{taskStatuses.map((status) => (
-						<option key={status.id} value={status.id} selected={status.id === task.status.id}>
+						<option key={status.id} value={status.id}>
 							{status.name}
 						</option>
 					))}
 				</select>
 				</div>
-			<div className="task-cell-content">
+			<div className="task-cell-content" >
 				<input
+					style={{color: lightTaskTextColor}}
 					placeholder="Task Name"
 					onBlur={(e) => {
 						if (e.target.value === "") removeTask(task.id);
