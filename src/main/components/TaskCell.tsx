@@ -1,4 +1,10 @@
 import { Task, TaskStatus } from "./App";
+import {
+	Listbox,
+	ListboxButton,
+	ListboxOption,
+	ListboxOptions,
+} from "@headlessui/react";
 
 const transColor = (color: string, percent: number): string => {
 	const num = parseInt(color.replace("#", ""), 16);
@@ -19,10 +25,19 @@ const transColor = (color: string, percent: number): string => {
 	);
 };
 
+const hexToRgba = (hex: string, alpha: number) => {
+	const cleanHex = hex.replace("#", "");
+	const bigint = parseInt(cleanHex, 16);
+	const r = (bigint >> 16) & 255;
+	const g = (bigint >> 8) & 255;
+	const b = bigint & 255;
+	return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
 interface TaskCellProps {
-    task: Task;
-    removeTask: (id: number) => void;
-    inputRef: React.RefObject<HTMLInputElement | null> | null;
+	task: Task;
+	removeTask: (id: number) => void;
+	inputRef: React.RefObject<HTMLInputElement | null> | null;
 	handleTaskNameChange: (id: number, newName: string) => void;
 	projectName: string;
 	status: TaskStatus;
@@ -30,37 +45,87 @@ interface TaskCellProps {
 	editTaskStatus: (id: number, newStatusId: string) => void;
 }
 
-const TaskCell: React.FC<TaskCellProps> = ({task, removeTask, inputRef, handleTaskNameChange, projectName, status, taskStatuses, editTaskStatus}) => {
-
+const TaskCell: React.FC<TaskCellProps> = ({
+	task,
+	removeTask,
+	inputRef,
+	handleTaskNameChange,
+	projectName,
+	status,
+	taskStatuses,
+	editTaskStatus,
+}) => {
 	const taskColor = status.color;
-    const taskBackground = `${status.color}33`;
-    const darkTaskTextColor = transColor(status.color, -40);
-    const lightTaskTextColor = transColor(status.color, 25);
-    const lightTaskBackgroundColor = `${transColor(status.color, 25)}33`;
+	const taskBackground = `${status.color}33`;
+	const darkTaskTextColor = transColor(status.color, -40);
+	const lightTaskTextColor = transColor(status.color, 25);
+	const lightTaskBackgroundColor = `${transColor(status.color, 25)}33`;
+
+	const placeholderColor = hexToRgba(lightTaskTextColor, 0.50);
 
 	return (
-		<div className="task-cell" style={{backgroundColor: taskBackground}}>
-			<div className="task-cell-header" style={{backgroundColor: taskBackground, color: lightTaskTextColor}}>
+		<div className="task-cell" style={{ backgroundColor: taskBackground }}>
+			<div
+				className="task-cell-header"
+				style={{
+					backgroundColor: taskBackground,
+					color: lightTaskTextColor,
+				}}
+			>
 				{projectName}
-				<select className="task-cell-status-indicator" style={{ border: `1px solid ${lightTaskTextColor}`, color: lightTaskTextColor }} onChange={(e) => editTaskStatus(task.id, e.target.value)} defaultValue={status.id}>
-					{taskStatuses.map((status) => (
-						<option key={status.id} value={status.id}>
+				<Listbox
+					value={status.id}
+					onChange={(value) => editTaskStatus(task.id, value)}
+				>
+					<div className="relative">
+						<ListboxButton
+							className="task-cell-status-indicator"
+							style={{
+								border: `1px solid ${lightTaskTextColor}`,
+								color: lightTaskTextColor,
+							}}
+						>
 							{status.name}
-						</option>
-					))}
-				</select>
-				</div>
-			<div className="task-cell-content" >
+						</ListboxButton>
+						<ListboxOptions className="task-cell-dropdown-options">
+							{taskStatuses.map((s) => (
+								<ListboxOption
+									key={s.id}
+									value={s.id}
+									className={({ active }) =>
+										`task-cell-dropdown-option ${
+											active ? "active" : ""
+										}`
+									}
+								>
+									{s.name}
+								</ListboxOption>
+							))}
+						</ListboxOptions>
+					</div>
+				</Listbox>
+			</div>
+			<div className="task-cell-content">
 				<input
-					style={{color: lightTaskTextColor}}
+					style={{ color: lightTaskTextColor }}
 					placeholder="Task Name"
 					onBlur={(e) => {
 						if (e.target.value === "") removeTask(task.id);
 					}}
-                    ref={inputRef}
-					onChange={(e) => handleTaskNameChange(task.id, e.target.value)}
+					ref={inputRef}
+					onChange={(e) =>
+						handleTaskNameChange(task.id, e.target.value)
+					}
 					value={task.name}
+					className={`task-input-${task.id}`}
 				></input>
+				<style>
+					{`
+						.task-input-${task.id}::placeholder {
+						color: ${placeholderColor};
+						}
+					`}
+				</style>
 			</div>
 		</div>
 	);

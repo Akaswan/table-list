@@ -67,7 +67,7 @@
 /* Task Cell */
 
 .task-cell {
-	opacity: 0.8;
+	/* opacity: 0.8; */
   border-radius: 8px;
   padding: 4px;
   display: flex;
@@ -81,6 +81,7 @@
   padding-left: 4px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .task-cell-content input {
@@ -91,17 +92,18 @@
   width: 100%;
 }
 
-.task-cell-status-indicator:hover {
-  background: rgba(255, 255, 255, .1)
-}
-
 .task-cell-status-indicator {
   padding-right: 4px;
   padding-left: 4px;
   border-radius: 6px;
-  height: min-content;
-  background-color: transparent;
+  height: 19px;
+  padding-top: 1px;
   text-align: center;
+  background-color: transparent !important;
+
+  display: flex;
+  align-items: center; /* <- vertical center */
+  justify-content: center; /* <- horizontal center */
 }
 
 .task-cell-status-indicator:hover {
@@ -167,6 +169,26 @@
 .date {
 	border-left: var(--border-width) solid var(--background-modifier-border);
 	width: var(--taskcell-enclosure-width);
+}
+
+.task-cell-dropdown-options {
+  position: absolute;
+  margin-top: 0.5rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--background-primary);
+  opacity: 1 !important;
+  color: var(--text-normal)
+}
+
+.task-cell-dropdown-option {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.task-cell-dropdown-option.active {
+  background-color: var(--background-secondary);
 }
 
 /* Required */

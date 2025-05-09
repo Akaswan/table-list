@@ -9,6 +9,7 @@ export default class TableList extends Plugin {
 			data = {
 				projects: [],
 				nextProjectId: 0,
+				nextTaskId: 0,
 			};
 
 			this.saveData(data);

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useTableContext } from "../views/TableView";
 import Table from "./Table";
 import TopBar from "./TopBar";
-import { format, addDays, startOfWeek, subDays } from "date-fns";
+import { format, addDays, startOfWeek, subDays, getDay } from "date-fns";
 import { stat } from "fs";
 
 export interface Project {
@@ -26,12 +26,14 @@ export interface TaskStatus {
 }
 
 const getWeekDates = (date: Date) => {
-	const startDate = startOfWeek(date, { weekStartsOn: 1 });
+	const dayOfWeek = getDay(date); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+	const adjustedDate = dayOfWeek === 0 ? addDays(date, 1) : date;
+	const startDate = startOfWeek(adjustedDate, { weekStartsOn: 1 });
 	const dates = Array.from({ length: 7 }, (_, i) => {
-		return format(addDays(startDate, i), "yyyy-MM-dd");
+	  return format(addDays(startDate, i), "yyyy-MM-dd");
 	});
 	return dates;
-};
+  };
 
 const getTaskStatuses = () => {
 	return [
@@ -57,7 +59,7 @@ const App: React.FC = () => {
 		() => tableContext!.loadData().nextProjectId as number
 	);
 	const [nextTaskId, setNextTaskId] = useState(
-		() => tableContext!.loadData().nextProjectId as number
+		() => tableContext!.loadData().nextTaskId as number
 	);
 
 	const incrementDates = () => {
