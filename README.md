@@ -18,7 +18,7 @@ This visual layout is great for planning workloads, tracking progress, and stayi
    In Obsidian, go to **Settings → Community Plugins → Browse**, search for **Table List**, and enable it after installation.
 
 2. **Create a Table**  
-   Open the plugin panel or activate it from the command palette to start a new task table.
+   Click on the activate view button in your left side panel
 
 3. **Add a Project**  
    Each row in the table corresponds to a project. Add a new row for each project you want to track.
