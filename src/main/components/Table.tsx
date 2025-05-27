@@ -74,17 +74,19 @@ const Table: React.FC<TableProps> = ({
 						<tr>
 							<th>Projects</th>
 							{dates.map((date) => (
-								<th className="date" key={date}>{`${format(
-									date,
-									"EEEE"
-								)} - ${format(date, "yyyy-MM-dd")}`}</th>
+								<th className="date" key={date}>
+									<div className="date-header">
+										<div>{format(date, "EEEE")}</div>
+										<div>{format(date, "yyyy-MM-dd")}</div>
+									</div>
+								</th>
 							))}
 						</tr>
 					</thead>
 					<tbody>
 						{projects.map((project) => (
 							<tr key={project.id}>
-								<td key={project.id}>
+								<td key={project.id} className="project-column">
 									<input
 										ref={
 											project.id === nextProjectId - 1
@@ -95,7 +97,7 @@ const Table: React.FC<TableProps> = ({
 										value={project.name}
 										className="project-input"
 										placeholder="New Project"
-										onBlur={(e) => {if (e.target.value === "") removeProject(project.id)}}
+										onBlur={(e) => { if (e.target.value === "") removeProject(project.id) }}
 										onChange={(e) =>
 											handleProjectNameChange(
 												project.id,
@@ -110,14 +112,14 @@ const Table: React.FC<TableProps> = ({
 										key={`${project.id}:${date}:${index}`}
 										onClick={(e) => {
 											if (e.target === e.currentTarget) {
-											  addTaskToProject(project, date);
-											  setTimeout(() => {
-												if (newTaskInputRef.current) {
-													newTaskInputRef.current.focus();
-												}
-											}, 0);
+												addTaskToProject(project, date);
+												setTimeout(() => {
+													if (newTaskInputRef.current) {
+														newTaskInputRef.current.focus();
+													}
+												}, 0);
 											}
-										  }}
+										}}
 									>
 										{project.tasks
 											.filter(

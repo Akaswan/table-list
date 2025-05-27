@@ -32,7 +32,7 @@ const hexToRgba = (hex: string, alpha: number) => {
 	const g = (bigint >> 8) & 255;
 	const b = bigint & 255;
 	return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  };
+};
 
 interface TaskCellProps {
 	task: Task;
@@ -72,7 +72,9 @@ const TaskCell: React.FC<TaskCellProps> = ({
 					color: lightTaskTextColor,
 				}}
 			>
-				{projectName}
+				<div className="project-name-repeat">
+					{projectName}
+				</div>
 				<Listbox
 					value={status.id}
 					onChange={(value) => editTaskStatus(task.id, value)}
@@ -93,8 +95,7 @@ const TaskCell: React.FC<TaskCellProps> = ({
 									key={s.id}
 									value={s.id}
 									className={({ active }) =>
-										`task-cell-dropdown-option ${
-											active ? "active" : ""
+										`task-cell-dropdown-option ${active ? "active" : ""
 										}`
 									}
 								>
