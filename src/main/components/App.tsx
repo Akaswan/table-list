@@ -3,7 +3,6 @@ import { useTableContext } from "../views/TableView";
 import Table from "./Table";
 import TopBar from "./TopBar";
 import { format, addDays, startOfWeek, subDays, getDay } from "date-fns";
-import { stat } from "fs";
 
 export interface Project {
 	id: number;
@@ -30,18 +29,18 @@ const getWeekDates = (date: Date) => {
 	const adjustedDate = dayOfWeek === 0 ? addDays(date, 1) : date;
 	const startDate = startOfWeek(adjustedDate, { weekStartsOn: 1 });
 	const dates = Array.from({ length: 7 }, (_, i) => {
-	  return format(addDays(startDate, i), "yyyy-MM-dd");
+		return format(addDays(startDate, i), "yyyy-MM-dd");
 	});
 	return dates;
-  };
+};
 
 const getTaskStatuses = () => {
 	return [
-		{ name: "Havent Started", id: "havent-started", color: "#FF0000" },
-		{ name: "In Progress", id: "in-progress", color: "#FF8800" },
+		{ name: "Havent started", id: "havent-started", color: "#FF0000" },
+		{ name: "In progress", id: "in-progress", color: "#FF8800" },
 		{ name: "Completed", id: "completed", color: "#35CC70" },
 	];
-}
+};
 
 const App: React.FC = () => {
 	const tableContext = useTableContext();
@@ -68,7 +67,7 @@ const App: React.FC = () => {
 			return newDates;
 		});
 	};
-	
+
 	const decrementDates = () => {
 		setDates((prevDates) => {
 			const newDates = getWeekDates(subDays(new Date(prevDates[0]), 6));
@@ -104,7 +103,7 @@ const App: React.FC = () => {
 			saveSpecificData("projects", newProjects);
 			return newProjects;
 		});
-	}
+	};
 
 	const removeProject = (id: number) => {
 		setProjects((prevProjects) => {
@@ -145,7 +144,7 @@ const App: React.FC = () => {
 			saveSpecificData("projects", newProjects);
 			return newProjects;
 		});
-	}
+	};
 
 	const createNewProject = (
 		newName: string,

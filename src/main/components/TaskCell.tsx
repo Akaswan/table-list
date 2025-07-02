@@ -109,7 +109,7 @@ const TaskCell: React.FC<TaskCellProps> = ({
 			<div className="task-cell-content">
 				<input
 					style={{ color: lightTaskTextColor }}
-					placeholder="Task Name"
+					placeholder="Task name"
 					onBlur={(e) => {
 						if (e.target.value === "") removeTask(task.id);
 					}}

@@ -96,7 +96,7 @@ const Table: React.FC<TableProps> = ({
 										type="text"
 										value={project.name}
 										className="project-input"
-										placeholder="New Project"
+										placeholder="New project"
 										onBlur={(e) => { if (e.target.value === "") removeProject(project.id) }}
 										onChange={(e) =>
 											handleProjectNameChange(
@@ -157,7 +157,7 @@ const Table: React.FC<TableProps> = ({
 				<input
 					type="text"
 					className="project-input"
-					placeholder="New Project"
+					placeholder="New project"
 					onChange={(e) => {
 						createNewProject(e.target.value, newProjectInputRef);
 						e.target.value = "";
