@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useTableContext } from "../views/TableView";
 import Table from "./Table";
 import TopBar from "./TopBar";
-import { format, addDays, startOfWeek, subDays, getDay } from "date-fns";
+import { format, addDays, subDays } from "date-fns";
 
 export interface Project {
 	id: number;
@@ -24,11 +24,8 @@ export interface TaskStatus {
 	color: string;
 }
 
-const getWeekDates = (date: Date) => {
-	const dayOfWeek = getDay(date); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-	const adjustedDate = dayOfWeek === 0 ? addDays(date, 1) : date;
-	const startDate = startOfWeek(adjustedDate, { weekStartsOn: 1 });
-	const dates = Array.from({ length: 7 }, (_, i) => {
+const getWeekDates = (startDate: Date) => {
+	const dates = Array.from({ length: 5 }, (_, i) => {
 		return format(addDays(startDate, i), "yyyy-MM-dd");
 	});
 	return dates;
@@ -63,14 +60,14 @@ const App: React.FC = () => {
 
 	const incrementDates = () => {
 		setDates((prevDates) => {
-			const newDates = getWeekDates(addDays(new Date(prevDates[0]), 8));
+			const newDates = getWeekDates(addDays(new Date(prevDates[0]), 2));
 			return newDates;
 		});
 	};
 
 	const decrementDates = () => {
 		setDates((prevDates) => {
-			const newDates = getWeekDates(subDays(new Date(prevDates[0]), 6));
+			const newDates = getWeekDates(subDays(new Date(prevDates[0]), 0));
 			return newDates;
 		});
 	};

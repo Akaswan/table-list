@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { useEffect, useRef } from "react";
 import * as React from "react";
 import { Project, TaskStatus } from "./App";
@@ -34,7 +34,7 @@ const Table: React.FC<TableProps> = ({
 	nextTaskId,
 	handleTaskNameChange,
 	taskStatuses,
-	editTaskStatus
+	editTaskStatus,
 }) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const newProjectInputRef = useRef<HTMLInputElement | null>(null);
@@ -46,7 +46,7 @@ const Table: React.FC<TableProps> = ({
 			if (containerWidth) {
 				document.documentElement.style.setProperty(
 					"--taskcell-enclosure-width",
-					`${(containerWidth - 128) / 7}px`
+					`${(containerWidth - 128) / 5}px`
 				);
 			}
 		};
@@ -73,14 +73,19 @@ const Table: React.FC<TableProps> = ({
 					<thead className="table-header">
 						<tr>
 							<th>Projects</th>
-							{dates.map((date) => (
-								<th className="date" key={date}>
-									<div className="date-header">
-										<div>{format(date, "EEEE")}</div>
-										<div>{format(date, "yyyy-MM-dd")}</div>
-									</div>
-								</th>
-							))}
+							{dates.map((date) => {
+								const dateObj = parseISO(date);
+								return (
+									<th className="date" key={date}>
+										<div className="date-header">
+											<div>{format(dateObj, "EEEE")}</div>
+											<div>
+												{format(dateObj, "yyyy-MM-dd")}
+											</div>
+										</div>
+									</th>
+								);
+							})}
 						</tr>
 					</thead>
 					<tbody>
@@ -97,7 +102,10 @@ const Table: React.FC<TableProps> = ({
 										value={project.name}
 										className="project-input"
 										placeholder="New project"
-										onBlur={(e) => { if (e.target.value === "") removeProject(project.id) }}
+										onBlur={(e) => {
+											if (e.target.value === "")
+												removeProject(project.id);
+										}}
 										onChange={(e) =>
 											handleProjectNameChange(
 												project.id,
@@ -114,7 +122,9 @@ const Table: React.FC<TableProps> = ({
 											if (e.target === e.currentTarget) {
 												addTaskToProject(project, date);
 												setTimeout(() => {
-													if (newTaskInputRef.current) {
+													if (
+														newTaskInputRef.current
+													) {
 														newTaskInputRef.current.focus();
 													}
 												}, 0);
@@ -136,14 +146,19 @@ const Table: React.FC<TableProps> = ({
 													removeTask={removeTask}
 													key={task.id}
 													inputRef={
-														task.id === nextTaskId - 1
+														task.id ===
+														nextTaskId - 1
 															? newTaskInputRef
 															: null
 													}
-													handleTaskNameChange={handleTaskNameChange}
+													handleTaskNameChange={
+														handleTaskNameChange
+													}
 													status={task.status}
 													taskStatuses={taskStatuses}
-													editTaskStatus={editTaskStatus}
+													editTaskStatus={
+														editTaskStatus
+													}
 												/>
 											))}
 									</td>
