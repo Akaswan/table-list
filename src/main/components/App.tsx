@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { useEffect, useState } from "react";
 import { useTableContext } from "../views/TableView";
 import Table from "./Table";
@@ -44,19 +45,30 @@ const App: React.FC = () => {
 
 	const [dates, setDates] = useState(getWeekDates(new Date()));
 
-	const [data, setData] = useState(() => tableContext!.loadData());
+	const [data, setData] = useState(() => tableContext?.loadData());
 
-	const [taskStatuses, setTaskStatuses] = useState(getTaskStatuses());
+	const [taskStatuses] = useState(getTaskStatuses());
 
-	const [projects, setProjects] = useState(
-		() => tableContext!.loadData().projects as Project[]
-	);
-	const [nextProjectId, setNextProjectId] = useState(
-		() => tableContext!.loadData().nextProjectId as number
-	);
-	const [nextTaskId, setNextTaskId] = useState(
-		() => tableContext!.loadData().nextTaskId as number
-	);
+	type TableData = {
+		projects: Project[];
+		nextProjectId: number;
+		nextTaskId: number;
+	};
+
+	const getInitialData = (): TableData => {
+		const data = tableContext?.loadData() as TableData | undefined;
+		return (
+			data || {
+				projects: [],
+				nextProjectId: 1,
+				nextTaskId: 1,
+			}
+		);
+	};
+
+	const [projects, setProjects] = useState<Project[]>(() => getInitialData().projects);
+	const [nextProjectId, setNextProjectId] = useState<number>(() => getInitialData().nextProjectId);
+	const [nextTaskId, setNextTaskId] = useState<number>(() => getInitialData().nextTaskId);
 
 	const incrementDates = () => {
 		setDates((prevDates) => {
@@ -201,10 +213,27 @@ const App: React.FC = () => {
 		});
 	};
 
-	const saveSpecificData = (key: string, value: any): void => {
-		setData((prevData: any) => {
-			const newData = { ...prevData, [key]: value };
+	const saveSpecificData = (key: string, value: unknown): void => {
+		setData((prevData: unknown) => {
+			const baseData = (typeof prevData === "object" && prevData !== null) ? prevData : {};
+			const newData = { ...baseData, [key]: value };
 			return newData;
+		});
+	};
+
+	const moveTask = (taskId: number, newDate: string) => {
+		setProjects((prevProjects) => {
+			const newProjects = prevProjects.map((project) => ({
+				...project,
+				tasks: project.tasks.map((task) =>
+					task.id === taskId
+						? { ...task, date: new Date(newDate) }
+						: task
+				),
+			}));
+
+			saveSpecificData("projects", newProjects);
+			return newProjects;
 		});
 	};
 
@@ -234,6 +263,7 @@ const App: React.FC = () => {
 				handleTaskNameChange={handleTaskNameChange}
 				taskStatuses={taskStatuses}
 				editTaskStatus={editTaskStatus}
+				moveTask={moveTask}
 			/>
 		</div>
 	);

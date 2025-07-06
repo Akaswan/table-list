@@ -5,8 +5,8 @@ import AppComponent from 'src/main/components/App';
 
 export interface AppContext {
 	app: App;
-	loadData: () => any;
-	saveData: (data: any) => Promise<void>;
+	loadData: () => unknown;
+	saveData: (data: unknown) => Promise<void>;
 }
 
 export const TABLE_VIEW_TYPE = 'table-view';
@@ -20,10 +20,10 @@ export const useTableContext = (): AppContext | undefined => {
 export class TableView extends ItemView {
 	root: Root | null = null;
 
-	loadData: () => any;
-	saveData: (data: any) => Promise<void>;
+	loadData: () => unknown;
+	saveData: (data: unknown) => Promise<void>;
 
-	constructor(leaf: WorkspaceLeaf, loadData: () => any, saveData: (data: any) => Promise<void>) {
+	constructor(leaf: WorkspaceLeaf, loadData: () => unknown, saveData: (data: unknown) => Promise<void>) {
 		super(leaf);
 		this.loadData = loadData;
 		this.saveData = saveData;
