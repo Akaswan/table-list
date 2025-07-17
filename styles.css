@@ -19,6 +19,62 @@
   width: min-content;
 }
 
+.view-chooser {
+  position: absolute;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+}
+
+.table-view-chooser{
+  height: 36px;
+  width: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  border: var(--border-width) solid var(--background-modifier-border);
+  background-color: var(--background-secondary);
+}
+
+.table-icon{
+  height: 20px;
+  width: 20px;
+}
+
+.list-view-chooser{
+  height: 36px;
+  width: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+  border-right: var(--border-width) solid var(--background-modifier-border);
+  border-bottom: var(--border-width) solid var(--background-modifier-border);
+  border-top: var(--border-width) solid var(--background-modifier-border);
+  background-color: var(--background-secondary);
+}
+
+.list-icon{
+  height: 20px;
+  width: 20px;
+}
+
+.table-view-chooser.unselected,
+.list-view-chooser.unselected {
+  background-color: var(--background-secondary-alt);
+  opacity: 0.6;
+}
+
+.table-view-chooser:hover,
+.list-view-chooser:hover {
+  cursor: pointer;
+  background-color: var(--background-modifier-hover);
+}
+
 .date-display {
   width: max-content;
   font-weight: bold !important;
@@ -215,6 +271,20 @@
 .task-cell-dropdown-option.active {
   background-color: var(--background-secondary);
 }
+
+/* list view */
+.list-view {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.list-table-header {
+  border: var(--border-width) solid var(--background-modifier-border);;
+}
+
+
 
 /* Required */
 .warning-container {

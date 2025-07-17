@@ -1,9 +1,10 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useEffect, useState } from "react";
-import { useTableContext } from "../views/TableView";
-import Table from "./Table";
+import { useTableContext } from "../views/TableList";
+import Table from "./TableView";
 import TopBar from "./TopBar";
 import { format, addDays, subDays } from "date-fns";
+import ListView from "./ListView";
 
 export interface Project {
 	id: number;
@@ -53,6 +54,7 @@ const App: React.FC = () => {
 		projects: Project[];
 		nextProjectId: number;
 		nextTaskId: number;
+		viewType: number;
 	};
 
 	const getInitialData = (): TableData => {
@@ -62,13 +64,23 @@ const App: React.FC = () => {
 				projects: [],
 				nextProjectId: 1,
 				nextTaskId: 1,
+				viewType: 0, // Default to table view
 			}
 		);
 	};
 
-	const [projects, setProjects] = useState<Project[]>(() => getInitialData().projects);
-	const [nextProjectId, setNextProjectId] = useState<number>(() => getInitialData().nextProjectId);
-	const [nextTaskId, setNextTaskId] = useState<number>(() => getInitialData().nextTaskId);
+	const [projects, setProjects] = useState<Project[]>(
+		() => getInitialData().projects
+	);
+	const [nextProjectId, setNextProjectId] = useState<number>(
+		() => getInitialData().nextProjectId
+	);
+	const [nextTaskId, setNextTaskId] = useState<number>(
+		() => getInitialData().nextTaskId
+	);
+	const [viewType, setViewType] = useState<number>(
+		() => getInitialData().viewType
+	);
 
 	const incrementDates = () => {
 		setDates((prevDates) => {
@@ -215,7 +227,10 @@ const App: React.FC = () => {
 
 	const saveSpecificData = (key: string, value: unknown): void => {
 		setData((prevData: unknown) => {
-			const baseData = (typeof prevData === "object" && prevData !== null) ? prevData : {};
+			const baseData =
+				typeof prevData === "object" && prevData !== null
+					? prevData
+					: {};
 			const newData = { ...baseData, [key]: value };
 			return newData;
 		});
@@ -249,22 +264,32 @@ const App: React.FC = () => {
 				incrementDates={incrementDates}
 				decrementDates={decrementDates}
 				setDatesToThisWeek={setDatesToThisWeek}
+				viewType={viewType}
+				setViewType={setViewType}
 			/>
-			<Table
-				projects={projects}
-				nextProjectId={nextProjectId}
-				handleProjectNameChange={handleProjectNameChange}
-				createNewProject={createNewProject}
-				dates={dates}
-				addTaskToProject={addTaskToProject}
-				removeProject={removeProject}
-				removeTask={removeTask}
-				nextTaskId={nextTaskId}
-				handleTaskNameChange={handleTaskNameChange}
-				taskStatuses={taskStatuses}
-				editTaskStatus={editTaskStatus}
-				moveTask={moveTask}
-			/>
+			{viewType === 0 && (
+				<Table
+					projects={projects}
+					nextProjectId={nextProjectId}
+					handleProjectNameChange={handleProjectNameChange}
+					createNewProject={createNewProject}
+					dates={dates}
+					addTaskToProject={addTaskToProject}
+					removeProject={removeProject}
+					removeTask={removeTask}
+					nextTaskId={nextTaskId}
+					handleTaskNameChange={handleTaskNameChange}
+					taskStatuses={taskStatuses}
+					editTaskStatus={editTaskStatus}
+					moveTask={moveTask}
+				/>
+			)}
+
+			{viewType === 1 && (
+				<ListView
+					projects={projects}
+					dates={dates}/>
+			)}
 		</div>
 	);
 };

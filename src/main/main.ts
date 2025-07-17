@@ -1,5 +1,5 @@
 import { Plugin, WorkspaceLeaf } from "obsidian";
-import { TableView, TABLE_VIEW_TYPE } from "./views/TableView";
+import { TableView, TABLE_VIEW_TYPE } from "./views/TableList";
 
 export default class TableList extends Plugin {
 	async onload() {
@@ -10,6 +10,7 @@ export default class TableList extends Plugin {
 				projects: [],
 				nextProjectId: 0,
 				nextTaskId: 0,
+				viewType: 0,
 			};
 
 			this.saveData(data);
