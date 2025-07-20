@@ -10,6 +10,7 @@ export default class TableList extends Plugin {
 				projects: [],
 				nextProjectId: 0,
 				nextTaskId: 0,
+				lastUpdated: new Date().toISOString(),
 			};
 
 			this.saveData(data);
