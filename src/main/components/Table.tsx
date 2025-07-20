@@ -1,13 +1,13 @@
 import { format, parseISO } from "date-fns";
 import { useEffect, useRef } from "react";
 import * as React from "react";
-import { Project, TaskStatus } from "./App";
 import TaskCell from "./TaskCell";
 import {
 	DndContext,
 	useDroppable,
 	DragEndEvent,
 } from "@dnd-kit/core";
+import { Project, TaskStatus } from "../types";
 
 interface TableProps {
 	projects: Project[];

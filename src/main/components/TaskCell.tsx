@@ -1,4 +1,4 @@
-import { Task, TaskStatus } from "./App";
+
 import {
 	Listbox,
 	ListboxButton,
@@ -6,6 +6,7 @@ import {
 	ListboxOptions,
 } from "@headlessui/react";
 import { useDraggable } from "@dnd-kit/core";
+import { Task, TaskStatus } from "../types";
 
 const transColor = (color: string, percent: number): string => {
 	const num = parseInt(color.replace("#", ""), 16);
