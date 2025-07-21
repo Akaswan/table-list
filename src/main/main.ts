@@ -1,9 +1,40 @@
 import { Plugin, WorkspaceLeaf } from "obsidian";
 import { TableView, TABLE_VIEW_TYPE } from "./views/TableView";
+import { TableListSettingsTab } from "./settings";
+
+export interface TableListSettings {
+	maxDates: string;
+}
+
+const DEFAULT_SETTINGS: Partial<TableListSettings> = {
+	maxDates: "7",
+};
 
 export default class TableList extends Plugin {
+	settings: TableListSettings;
+
+	async loadSettings() {
+		this.settings = Object.assign(
+			{},
+			DEFAULT_SETTINGS,
+			await this.loadData()
+		);
+	}
+
+	async saveSettings() {
+		await this.saveData(this.settings);
+	}
+
 	async onload() {
 		let data = await this.loadData();
+
+		await this.loadSettings();
+
+		this.addSettingTab(new TableListSettingsTab(this.app, this));
+
+		const statusBarNotifier = this.addStatusBarItem();
+
+		const statusBarText = statusBarNotifier.createEl('span');
 
 		if (!(await data)) {
 			data = {
@@ -29,7 +60,9 @@ export default class TableList extends Plugin {
 				new TableView(
 					leaf,
 					() => data,
-					(data) => this.saveData(data)
+					(data) => this.saveData(data),
+					this.settings,
+					statusBarText
 				)
 		);
 

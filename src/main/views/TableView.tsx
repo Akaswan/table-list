@@ -1,15 +1,18 @@
-import { createContext, useContext } from 'react';
-import { ItemView, WorkspaceLeaf, App } from 'obsidian';
-import { Root, createRoot } from 'react-dom/client';
-import AppComponent from 'src/main/components/App';
+import { createContext, useContext } from "react";
+import { ItemView, WorkspaceLeaf, App } from "obsidian";
+import { Root, createRoot } from "react-dom/client";
+import AppComponent from "src/main/components/App";
+import { TableListSettings } from "../main";
 
 export interface AppContext {
 	app: App;
 	loadData: () => unknown;
 	saveData: (data: unknown) => Promise<void>;
+	settings: TableListSettings;
+	statusBarText: HTMLSpanElement;
 }
 
-export const TABLE_VIEW_TYPE = 'table-view';
+export const TABLE_VIEW_TYPE = "table-view";
 
 export const TableContext = createContext<AppContext | undefined>(undefined);
 
@@ -22,11 +25,21 @@ export class TableView extends ItemView {
 
 	loadData: () => unknown;
 	saveData: (data: unknown) => Promise<void>;
+	settings: TableListSettings;
+	statusBarText: HTMLSpanElement;
 
-	constructor(leaf: WorkspaceLeaf, loadData: () => unknown, saveData: (data: unknown) => Promise<void>) {
+	constructor(
+		leaf: WorkspaceLeaf,
+		loadData: () => unknown,
+		saveData: (data: unknown) => Promise<void>,
+		settings: TableListSettings,
+		statusBarText: HTMLSpanElement
+	) {
 		super(leaf);
 		this.loadData = loadData;
 		this.saveData = saveData;
+		this.settings = settings;
+		this.statusBarText = statusBarText;
 	}
 
 	getViewType() {
@@ -34,17 +47,25 @@ export class TableView extends ItemView {
 	}
 
 	getDisplayText() {
-		return 'TableList';
+		return "TableList";
 	}
 
 	getIcon() {
-		return 'table-2';
+		return "table-2";
 	}
 
 	async onOpen() {
 		this.root = createRoot(this.containerEl.children[1]);
 		this.root.render(
-			<TableContext.Provider value={{app: this.app, saveData: this.saveData, loadData: this.loadData}}>
+			<TableContext.Provider
+				value={{
+					app: this.app,
+					saveData: this.saveData,
+					loadData: this.loadData,
+					settings: this.settings,
+					statusBarText: this.statusBarText,
+				}}
+			>
 				<AppComponent />
 			</TableContext.Provider>
 		);

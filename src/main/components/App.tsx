@@ -1,9 +1,9 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTableContext } from "../views/TableView";
 import Table from "./Table";
 import TopBar from "./TopBar";
-import { format, addDays, subDays } from "date-fns";
+import { format, addDays, subDays, isSameDay } from "date-fns";
 import { createClient } from "@supabase/supabase-js";
 import { Project, TableData, Task, TaskStatus } from "../types";
 
@@ -13,8 +13,8 @@ const supabaseAnonKey = process.env.SUPABASE_ANON_KEY ?? "";
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 /** Utility Functions **/
-const getWeekDates = (startDate: Date) =>
-	Array.from({ length: 5 }, (_, i) =>
+const getWeekDates = (startDate: Date, numDates: number) =>
+	Array.from({ length: numDates }, (_, i) =>
 		format(addDays(startDate, i), "yyyy-MM-dd")
 	);
 
@@ -50,7 +50,8 @@ const App: React.FC = () => {
 	};
 
 	/** State **/
-	const [dates, setDates] = useState(getWeekDates(new Date()));
+	const [datesShown, setDatesShown] = useState(5);
+	const [dates, setDates] = useState(getWeekDates(new Date(), 5));
 	const [data, setData] = useState<TableData>(getInitialData);
 	const [projects, setProjects] = useState<Project[]>(
 		() => getInitialData().projects
@@ -64,13 +65,17 @@ const App: React.FC = () => {
 	const [taskStatuses] = useState(getTaskStatuses);
 	const [dirty, setDirty] = useState(false);
 	const dataRef = useRef<TableData>(getInitialData());
+	const wrapperRef = useRef<HTMLDivElement>(null);
+
+	const maxDates = parseInt(tableContext?.settings.maxDates ?? "7");
 
 	/** Date Controls **/
 	const incrementDates = () =>
-		setDates(getWeekDates(addDays(new Date(dates[0]), 2)));
+		setDates(getWeekDates(addDays(new Date(dates[0]), 2), datesShown));
 	const decrementDates = () =>
-		setDates(getWeekDates(subDays(new Date(dates[0]), 0)));
-	const setDatesToThisWeek = () => setDates(getWeekDates(new Date()));
+		setDates(getWeekDates(subDays(new Date(dates[0]), 0), datesShown));
+	const setDatesToThisWeek = () =>
+		setDates(getWeekDates(new Date(), datesShown));
 
 	/** Data Handlers **/
 	const saveSpecificData = (key: keyof TableData, value: unknown): void => {
@@ -123,9 +128,10 @@ const App: React.FC = () => {
 				t.id === id
 					? {
 							...t,
-							status: taskStatuses.find(
-								(s) => s.id === newStatusId
-							) ?? t.status,
+							status:
+								taskStatuses.find(
+									(s) => s.id === newStatusId
+								) ?? t.status,
 					  }
 					: t
 			),
@@ -184,6 +190,67 @@ const App: React.FC = () => {
 		setNextTaskId(newId);
 	};
 
+	const findPendingTasksLeftSide = () => {
+		let number = 0;
+		projects.forEach((project) => {
+			project.tasks.forEach((task) => {
+				if (
+					new Date(task.date).getTime() <
+						new Date(dates[0]).getTime() &&
+					task.status.id !== "completed"
+				) {
+					number++;
+				}
+			});
+		});
+
+		return number;
+	};
+
+	const findPendingTasksRightSide = () => {
+		let number = 0;
+		projects.forEach((project) => {
+			project.tasks.forEach((task) => {
+				if (
+					new Date(task.date).getTime() >
+						new Date(dates[dates.length - 1]).getTime() &&
+					task.status.id !== "completed"
+				) {
+					number++;
+				}
+			});
+		});
+
+		return number;
+	};
+
+	const handleResize = useCallback(() => {
+		const containerWidth = wrapperRef.current?.clientWidth;
+
+		if (containerWidth) {
+			const newDatesToShow = Math.max(
+				1,
+				Math.min(Math.floor((containerWidth - 128) / 200), maxDates)
+			);
+
+			if (newDatesToShow !== datesShown) {
+				setDatesShown(newDatesToShow);
+				setDates(getWeekDates(new Date(dates[0]), newDatesToShow));
+			}
+
+			document.documentElement.style.setProperty(
+				"--taskcell-enclosure-width",
+				`${(containerWidth - 128) / newDatesToShow}px`
+			);
+		} else {
+			// Fallback to default
+			if (datesShown !== 5) {
+				setDatesShown(5);
+				setDates(getWeekDates(new Date(dates[0]), 5));
+			}
+		}
+	}, [datesShown, dates]);
+
 	/** Sync Logic **/
 	const syncWithServer = async () => {
 		console.log("🔄 Syncing with server...");
@@ -233,15 +300,53 @@ const App: React.FC = () => {
 	}, [dirty]);
 	useEffect(() => {
 		tableContext?.saveData(data);
+		let remainingTasks = 0;
+		projects.forEach((project) => {
+			project.tasks.forEach((task) => {
+				if (
+					isSameDay(new Date(task.date), subDays(new Date(), 1)) &&
+					task.status.id !== "completed"
+				) {
+					remainingTasks++;
+				}
+			});
+		});
+
+		if (remainingTasks === 0) {
+			tableContext?.statusBarText.setText("All Done!");
+		} else if (remainingTasks === 1) {
+			tableContext?.statusBarText.setText(
+				`🗓️ ${remainingTasks} task left `
+			);
+		} else {
+			tableContext?.statusBarText.setText(
+				`🗓️ ${remainingTasks} tasks left `
+			);
+		}
 	}, [projects, nextProjectId]);
+	useEffect(() => {
+		const resizeObserver = new ResizeObserver(handleResize);
+		if (wrapperRef.current) {
+			resizeObserver.observe(wrapperRef.current);
+		}
+		handleResize(); // Initial run
+
+		return () => {
+			if (wrapperRef.current) {
+				resizeObserver.unobserve(wrapperRef.current);
+			}
+		};
+	}, [handleResize]);
 
 	/** Render **/
 	return (
-		<div className="app-wrapper">
+		<div className="app-wrapper" ref={wrapperRef}>
 			<TopBar
 				incrementDates={incrementDates}
 				decrementDates={decrementDates}
 				setDatesToThisWeek={setDatesToThisWeek}
+				findPendingTasksLeftSide={findPendingTasksLeftSide}
+				findPendingTasksRightSide={findPendingTasksRightSide}
 			/>
 			<Table
 				projects={projects}
@@ -257,6 +362,7 @@ const App: React.FC = () => {
 				taskStatuses={taskStatuses}
 				editTaskStatus={editTaskStatus}
 				moveTask={moveTask}
+				wrapperRef={wrapperRef}
 			/>
 		</div>
 	);

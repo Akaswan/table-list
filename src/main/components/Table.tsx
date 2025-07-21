@@ -1,12 +1,8 @@
 import { format, parseISO } from "date-fns";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import * as React from "react";
 import TaskCell from "./TaskCell";
-import {
-	DndContext,
-	useDroppable,
-	DragEndEvent,
-} from "@dnd-kit/core";
+import { DndContext, useDroppable, DragEndEvent } from "@dnd-kit/core";
 import { Project, TaskStatus } from "../types";
 
 interface TableProps {
@@ -26,6 +22,7 @@ interface TableProps {
 	taskStatuses: TaskStatus[];
 	editTaskStatus: (id: number, newStatusId: string) => void;
 	moveTask: (taskId: number, newDate: string) => void;
+	wrapperRef: React.RefObject<HTMLDivElement | null>;
 }
 
 function DroppableCell({
@@ -65,36 +62,38 @@ const Table: React.FC<TableProps> = ({
 	taskStatuses,
 	editTaskStatus,
 	moveTask,
+	wrapperRef,
 }) => {
-	const containerRef = useRef<HTMLDivElement>(null);
 	const newProjectInputRef = useRef<HTMLInputElement | null>(null);
-	const newTaskInputRef = useRef<HTMLInputElement | null>(null);
+	const newTaskInputRef = useRef<HTMLTextAreaElement | null>(null);
 
-	useEffect(() => {
-		const handleResize = () => {
-			const containerWidth = containerRef.current?.clientWidth;
-			if (containerWidth) {
-				document.documentElement.style.setProperty(
-					"--taskcell-enclosure-width",
-					`${(containerWidth - 128) / 5}px`
-				);
-			}
-		};
+	// useEffect(() => {
+	// 	if (wrapperRef) {
+	// 		const handleResize = () => {
+	// 			const containerWidth = wrapperRef.current?.clientWidth;
+	// 			if (containerWidth) {
+	// 				document.documentElement.style.setProperty(
+	// 					"--taskcell-enclosure-width",
+	// 					`${(containerWidth - 128) / 5}px`
+	// 				);
+	// 			}
+	// 		};
 
-		const resizeObserver = new ResizeObserver(handleResize);
-		if (containerRef.current) {
-			resizeObserver.observe(containerRef.current);
-		}
+	// 		const resizeObserver = new ResizeObserver(handleResize);
+	// 		if (wrapperRef.current) {
+	// 			resizeObserver.observe(wrapperRef.current);
+	// 		}
 
-		// Initial call to set the variable
-		handleResize();
+	// 		// Initial call to set the variable
+	// 		handleResize();
 
-		return () => {
-			if (containerRef.current) {
-				resizeObserver.unobserve(containerRef.current);
-			}
-		};
-	}, [containerRef]);
+	// 		return () => {
+	// 			if (wrapperRef.current) {
+	// 				resizeObserver.unobserve(wrapperRef.current);
+	// 			}
+	// 		};
+	// 	}
+	// }, [wrapperRef]);
 
 	return (
 		<DndContext
@@ -109,7 +108,7 @@ const Table: React.FC<TableProps> = ({
 			}}
 		>
 			<div>
-				<div className="table-container" ref={containerRef}>
+				<div className="table-container">
 					<table className="table headings-center">
 						<thead className="table-header">
 							<tr>

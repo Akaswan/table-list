@@ -64,6 +64,38 @@
   border-right: var(--border-width) solid var(--background-modifier-border);
 }
 
+.chevron-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.chevron-badge {
+	position: absolute;
+	top: -4px;
+	width: 18px;
+	height: 18px;
+	font-size: 10px;
+	border-radius: 50%;
+	background-color: #ff0000;
+	border: 2px solid #cc0000;
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: bold;
+}
+
+.left-badge {
+	left: -4px;
+}
+
+.right-badge {
+	right: -4px;
+}
+
 /* Task Cell */
 
 .task-cell {
@@ -88,12 +120,17 @@
   text-overflow: clip;
 }
 
-.task-cell-content input {
+.task-cell-content textarea {
   background: transparent;
   border: none;
-  margin-bottom: 4px;
+  padding: 2px;
   font-size: 14px;
   width: 100%;
+}
+
+.task-cell-content textarea:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .task-cell-status-indicator {
@@ -164,7 +201,7 @@
 .table td {
   padding: 8px;
   font-size: small;
-  height: 80px;
+  height: 82px;
   border-top: var(--border-width) solid var(--background-modifier-border);
 }
 
