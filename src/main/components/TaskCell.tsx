@@ -46,6 +46,7 @@ interface TaskCellProps {
 	status: TaskStatus;
 	taskStatuses: TaskStatus[];
 	editTaskStatus: (id: number, newStatusId: string) => void;
+	autoFocus?: boolean;
 }
 
 const TaskCell: React.FC<TaskCellProps> = ({
@@ -57,6 +58,7 @@ const TaskCell: React.FC<TaskCellProps> = ({
 	status,
 	taskStatuses,
 	editTaskStatus,
+	autoFocus = false, // default to false if not provided
 }) => {
 	const taskBackground = `${status.color}33`;
 	const lightTaskTextColor = transColor(status.color, 25);
@@ -80,13 +82,12 @@ const TaskCell: React.FC<TaskCellProps> = ({
 	}, [value]);
 
 	useEffect(() => {
-		if (textareaRef.current) {
+		if (autoFocus && textareaRef.current) {
 			textareaRef.current.focus();
-			// Optional: move cursor to end
 			const len = textareaRef.current.value.length;
 			textareaRef.current.setSelectionRange(len, len);
 		}
-	}, []);
+	}, [autoFocus]);
 
 	return (
 		<div

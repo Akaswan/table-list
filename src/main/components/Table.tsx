@@ -67,34 +67,6 @@ const Table: React.FC<TableProps> = ({
 	const newProjectInputRef = useRef<HTMLInputElement | null>(null);
 	const newTaskInputRef = useRef<HTMLTextAreaElement | null>(null);
 
-	// useEffect(() => {
-	// 	if (wrapperRef) {
-	// 		const handleResize = () => {
-	// 			const containerWidth = wrapperRef.current?.clientWidth;
-	// 			if (containerWidth) {
-	// 				document.documentElement.style.setProperty(
-	// 					"--taskcell-enclosure-width",
-	// 					`${(containerWidth - 128) / 5}px`
-	// 				);
-	// 			}
-	// 		};
-
-	// 		const resizeObserver = new ResizeObserver(handleResize);
-	// 		if (wrapperRef.current) {
-	// 			resizeObserver.observe(wrapperRef.current);
-	// 		}
-
-	// 		// Initial call to set the variable
-	// 		handleResize();
-
-	// 		return () => {
-	// 			if (wrapperRef.current) {
-	// 				resizeObserver.unobserve(wrapperRef.current);
-	// 			}
-	// 		};
-	// 	}
-	// }, [wrapperRef]);
-
 	return (
 		<DndContext
 			onDragEnd={(event: DragEndEvent) => {
@@ -194,6 +166,7 @@ const Table: React.FC<TableProps> = ({
 													<TaskCell
 														key={task.id}
 														task={task}
+														autoFocus={task.id === nextTaskId - 1 && task.name === ""}
 														projectName={
 															project.name
 														}

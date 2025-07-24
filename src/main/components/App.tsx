@@ -52,6 +52,7 @@ const App: React.FC = () => {
 	/** State **/
 	const [datesShown, setDatesShown] = useState(5);
 	const [dates, setDates] = useState(getWeekDates(new Date(), 5));
+	const [baseDate, setBaseDate] = useState(new Date());
 	const [data, setData] = useState<TableData>(getInitialData);
 	const [projects, setProjects] = useState<Project[]>(
 		() => getInitialData().projects
@@ -70,12 +71,23 @@ const App: React.FC = () => {
 	const maxDates = parseInt(tableContext?.settings.maxDates ?? "7");
 
 	/** Date Controls **/
-	const incrementDates = () =>
-		setDates(getWeekDates(addDays(new Date(dates[0]), 2), datesShown));
-	const decrementDates = () =>
-		setDates(getWeekDates(subDays(new Date(dates[0]), 0), datesShown));
-	const setDatesToThisWeek = () =>
-		setDates(getWeekDates(new Date(), datesShown));
+	const incrementDates = () => {
+		const newBaseDate = addDays(baseDate, 1);
+		setBaseDate(newBaseDate);
+		setDates(getWeekDates(newBaseDate, datesShown));
+	};
+
+	const decrementDates = () => {
+		const newBaseDate = subDays(baseDate, 1);
+		setBaseDate(newBaseDate);
+		setDates(getWeekDates(newBaseDate, datesShown));
+	};
+
+	const setDatesToThisWeek = () => {
+		const today = new Date();
+		setBaseDate(today);
+		setDates(getWeekDates(today, datesShown));
+	};
 
 	/** Data Handlers **/
 	const saveSpecificData = (key: keyof TableData, value: unknown): void => {
@@ -190,16 +202,25 @@ const App: React.FC = () => {
 		setNextTaskId(newId);
 	};
 
+const normalizeDateUTC = (d: Date) => {
+	const copy = new Date(d);
+	copy.setUTCHours(0, 0, 0, 0);
+	return copy;
+};
+
+const isBeforeDayUTC = (a: Date, b: Date) =>
+	normalizeDateUTC(a).getTime() < normalizeDateUTC(b).getTime();
+
 	const findPendingTasksLeftSide = () => {
 		let number = 0;
 		projects.forEach((project) => {
 			project.tasks.forEach((task) => {
 				if (
-					new Date(task.date).getTime() <
-						new Date(dates[0]).getTime() &&
+					isBeforeDayUTC(new Date(task.date), baseDate) &&
 					task.status.id !== "completed"
 				) {
 					number++;
+					console.log(new Date(task.date));
 				}
 			});
 		});
@@ -235,7 +256,7 @@ const App: React.FC = () => {
 
 			if (newDatesToShow !== datesShown) {
 				setDatesShown(newDatesToShow);
-				setDates(getWeekDates(new Date(dates[0]), newDatesToShow));
+				setDates(getWeekDates(baseDate, newDatesToShow));
 			}
 
 			document.documentElement.style.setProperty(
@@ -246,14 +267,14 @@ const App: React.FC = () => {
 			// Fallback to default
 			if (datesShown !== 5) {
 				setDatesShown(5);
-				setDates(getWeekDates(new Date(dates[0]), 5));
+				setDates(getWeekDates(baseDate, 5));
 			}
 		}
 	}, [datesShown, dates]);
 
 	/** Sync Logic **/
 	const syncWithServer = async () => {
-		console.log("🔄 Syncing with server...");
+		// console.log("🔄 Syncing with server...");
 		try {
 			const { data, error } = await supabase.from("syncData").select();
 			if (error) return console.error("❌ Supabase error:", error);
@@ -268,7 +289,7 @@ const App: React.FC = () => {
 				setNextProjectId(onlineData.nextProjectId ?? 1);
 				setNextTaskId(onlineData.nextTaskId ?? 1);
 				setData({ ...onlineData });
-				console.log("⬇️ Pulled newer data from server");
+				// console.log("⬇️ Pulled newer data from server");
 			} else if (dirty) {
 				const { error: updateError } = await supabase
 					.from("syncData")
@@ -276,11 +297,11 @@ const App: React.FC = () => {
 					.eq("id", 1);
 				if (updateError) console.error("❌ Update error:", updateError);
 				else {
-					console.log("⬆️ Pushed local changes to server");
+					// console.log("⬆️ Pushed local changes to server");
 					setDirty(false);
 				}
 			} else {
-				console.log("✅ Data already in sync");
+				// console.log("✅ Data already in sync");
 			}
 		} catch (err) {
 			console.error("❌ Sync exception:", err);
