@@ -1,9 +1,11 @@
-import { format, parseISO } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import { useRef } from "react";
 import * as React from "react";
 import TaskCell from "./TaskCell";
 import { DndContext, useDroppable, DragEndEvent } from "@dnd-kit/core";
 import { Project, TaskStatus } from "../types";
+import { IntraViewData } from "../main";
+import { SharedState } from "../sharedState";
 
 interface TableProps {
 	projects: Project[];
@@ -13,8 +15,8 @@ interface TableProps {
 		newName: string,
 		newProjectInputRef: React.RefObject<HTMLInputElement | null>
 	) => void;
-	dates: string[];
-	addTaskToProject: (project: Project, date: string) => void;
+	dates: Date[];
+	addTaskToProject: (project: Project, date: Date) => void;
 	removeProject: (id: number) => void;
 	removeTask: (id: number) => void;
 	nextTaskId: number;
@@ -23,6 +25,7 @@ interface TableProps {
 	editTaskStatus: (id: number, newStatusId: string) => void;
 	moveTask: (taskId: number, newDate: string) => void;
 	wrapperRef: React.RefObject<HTMLDivElement | null>;
+	sharedState: SharedState<IntraViewData> | null;
 }
 
 function DroppableCell({
@@ -62,10 +65,20 @@ const Table: React.FC<TableProps> = ({
 	taskStatuses,
 	editTaskStatus,
 	moveTask,
-	wrapperRef,
+	sharedState,
 }) => {
 	const newProjectInputRef = useRef<HTMLInputElement | null>(null);
 	const newTaskInputRef = useRef<HTMLTextAreaElement | null>(null);
+
+	const isTaskAutoFocused = (taskId: number, taskName: string) => {
+		if (taskId === nextTaskId - 1 && taskName === "") {
+			sharedState?.set({ selectedTaskId: taskId });
+			console.log("Auto focusing task:", taskId);
+			return true;
+		} else {
+			return false;
+		}
+	};
 
 	return (
 		<DndContext
@@ -86,18 +99,17 @@ const Table: React.FC<TableProps> = ({
 							<tr>
 								<th>Projects</th>
 								{dates.map((date) => {
-									const dateObj = parseISO(date);
 									return (
-										<th className="date" key={date}>
+										<th
+											className="date"
+											key={format(date, "yyyy-MM-dd")}
+										>
 											<div className="date-header">
 												<div>
-													{format(dateObj, "EEEE")}
+													{format(date, "EEEE")}
 												</div>
 												<div>
-													{format(
-														dateObj,
-														"yyyy-MM-dd"
-													)}
+													{format(date, "yyyy-MM-dd")}
 												</div>
 											</div>
 										</th>
@@ -134,7 +146,7 @@ const Table: React.FC<TableProps> = ({
 											}
 										/>
 									</td>
-									{dates.map((date, index) => (
+									{dates.map((date) => (
 										<DroppableCell
 											id={`${project.id}::${date}`}
 											onClick={(e) => {
@@ -150,23 +162,23 @@ const Table: React.FC<TableProps> = ({
 													}, 0);
 												}
 											}}
-											key={`${project.id}-${date}`} // ADD KEY HERE
+											key={`${project.id}-${date}`}
 										>
 											{project.tasks
-												.filter(
-													(task) =>
-														new Date(
-															task.date
-														).toISOString() ===
-														new Date(
-															date
-														).toISOString()
+												.filter((task) =>
+													isSameDay(
+														new Date(task.date),
+														new Date(date)
+													)
 												)
 												.map((task) => (
 													<TaskCell
 														key={task.id}
 														task={task}
-														autoFocus={task.id === nextTaskId - 1 && task.name === ""}
+														autoFocus={isTaskAutoFocused(
+															task.id,
+															task.name
+														)}
 														projectName={
 															project.name
 														}
@@ -187,6 +199,11 @@ const Table: React.FC<TableProps> = ({
 														editTaskStatus={
 															editTaskStatus
 														}
+														onFocus={(taskId) => {
+															sharedState?.set({
+																selectedTaskId: taskId,
+															});
+														}}
 													/>
 												))}
 										</DroppableCell>

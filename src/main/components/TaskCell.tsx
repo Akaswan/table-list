@@ -47,6 +47,7 @@ interface TaskCellProps {
 	taskStatuses: TaskStatus[];
 	editTaskStatus: (id: number, newStatusId: string) => void;
 	autoFocus?: boolean;
+	onFocus: (taskId: number) => void;
 }
 
 const TaskCell: React.FC<TaskCellProps> = ({
@@ -59,6 +60,7 @@ const TaskCell: React.FC<TaskCellProps> = ({
 	taskStatuses,
 	editTaskStatus,
 	autoFocus = false, // default to false if not provided
+	onFocus,
 }) => {
 	const taskBackground = `${status.color}33`;
 	const lightTaskTextColor = transColor(status.color, 25);
@@ -175,6 +177,7 @@ const TaskCell: React.FC<TaskCellProps> = ({
 						height: "auto",
 					}}
 					rows={1}
+					onFocus={() => onFocus(task.id)}
 				/>
 				<style>{`
 					.task-input-${task.id}::placeholder {

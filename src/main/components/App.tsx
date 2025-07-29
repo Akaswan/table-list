@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTableContext } from "../views/TableView";
 import Table from "./Table";
 import TopBar from "./TopBar";
-import { format, addDays, subDays, isSameDay } from "date-fns";
+import { addDays, subDays } from "date-fns";
 import { createClient } from "@supabase/supabase-js";
 import { Project, TableData, Task, TaskStatus } from "../types";
 
@@ -13,9 +13,27 @@ const supabaseAnonKey = process.env.SUPABASE_ANON_KEY ?? "";
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 /** Utility Functions **/
-const getWeekDates = (startDate: Date, numDates: number) =>
+export const toMidnight = (date: Date | string): Date => {
+	const d = new Date(date);
+	d.setHours(0, 0, 0, 0); // set time to 00:00 UTC
+	return d;
+};
+
+const normalizeHours = (d: Date) => {
+	const copy = new Date(d);
+	copy.setHours(0, 0, 0, 0);
+	return copy;
+};
+
+const isBeforeNormalizedDay = (a: Date, b: Date) =>
+	normalizeHours(a).getTime() < normalizeHours(b).getTime();
+
+const isSameNormalizedDay = (a: Date, b: Date) =>
+	normalizeHours(a).getTime() === normalizeHours(b).getTime();
+
+const getWeekDates = (startDate: Date, numDates: number): Date[] =>
 	Array.from({ length: numDates }, (_, i) =>
-		format(addDays(startDate, i), "yyyy-MM-dd")
+		addDays(startDate, i)
 	);
 
 const getTaskStatuses = (): TaskStatus[] => [
@@ -85,6 +103,7 @@ const App: React.FC = () => {
 
 	const setDatesToThisWeek = () => {
 		const today = new Date();
+		console.log(today);
 		setBaseDate(today);
 		setDates(getWeekDates(today, datesShown));
 	};
@@ -153,10 +172,11 @@ const App: React.FC = () => {
 	};
 
 	const moveTask = (id: number, newDate: string) => {
+		const normalizedDate = toMidnight(newDate);
 		const newProjects = projects.map((p) => ({
 			...p,
 			tasks: p.tasks.map((t) =>
-				t.id === id ? { ...t, date: new Date(newDate) } : t
+				t.id === id ? { ...t, date: normalizedDate } : t
 			),
 		}));
 		saveSpecificData("projects", newProjects);
@@ -182,11 +202,11 @@ const App: React.FC = () => {
 		setTimeout(() => ref.current?.focus(), 0);
 	};
 
-	const addTaskToProject = (project: Project, date: string) => {
+	const addTaskToProject = (project: Project, date: Date) => {
 		const newTask: Task = {
 			id: nextTaskId,
 			name: "",
-			date: new Date(date),
+			date: toMidnight(date),
 			parentProjectId: project.id,
 			status: taskStatuses[0],
 		};
@@ -202,25 +222,15 @@ const App: React.FC = () => {
 		setNextTaskId(newId);
 	};
 
-const normalizeDateUTC = (d: Date) => {
-	const copy = new Date(d);
-	copy.setUTCHours(0, 0, 0, 0);
-	return copy;
-};
-
-const isBeforeDayUTC = (a: Date, b: Date) =>
-	normalizeDateUTC(a).getTime() < normalizeDateUTC(b).getTime();
-
 	const findPendingTasksLeftSide = () => {
 		let number = 0;
 		projects.forEach((project) => {
 			project.tasks.forEach((task) => {
 				if (
-					isBeforeDayUTC(new Date(task.date), baseDate) &&
+					isBeforeNormalizedDay(new Date(task.date), baseDate) &&
 					task.status.id !== "completed"
 				) {
 					number++;
-					console.log(new Date(task.date));
 				}
 			});
 		});
@@ -311,6 +321,10 @@ const isBeforeDayUTC = (a: Date, b: Date) =>
 	/** Effects **/
 	useEffect(() => {
 		dataRef.current = data;
+		// dates.forEach((date) => {
+		// 	console.log(new Date(date));
+		// });
+		console.log(toMidnight(new Date()));
 	}, [data]);
 	useEffect(() => {
 		syncWithServer();
@@ -325,7 +339,7 @@ const isBeforeDayUTC = (a: Date, b: Date) =>
 		projects.forEach((project) => {
 			project.tasks.forEach((task) => {
 				if (
-					isSameDay(new Date(task.date), subDays(new Date(), 1)) &&
+					isSameNormalizedDay(new Date(task.date), new Date()) &&
 					task.status.id !== "completed"
 				) {
 					remainingTasks++;
@@ -384,6 +398,7 @@ const isBeforeDayUTC = (a: Date, b: Date) =>
 				editTaskStatus={editTaskStatus}
 				moveTask={moveTask}
 				wrapperRef={wrapperRef}
+				sharedState={tableContext!.sharedState}
 			/>
 		</div>
 	);
